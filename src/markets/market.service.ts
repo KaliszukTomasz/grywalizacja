@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Marketplace } from './market.model';
 import { Observable, Subject } from 'rxjs';
-import { ExpressService } from 'src/util/express.service';
+import { ExpressService } from '../util/express.service';
 
 @Injectable()
 export class MarketService {
