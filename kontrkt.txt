@@ -1,0 +1,37 @@
+const MNEMONIC =
+  'inject trial denial fluid crash fog record enough sauce top obtain genre';
+pragma solidity >=0.4.16 <0.7.0;
+
+contract Player{
+    string public name;
+    address public owner;
+    int256 public level ;
+    
+    bool public playerDeletedFlag;
+     
+    event PlayerDeleted();
+    
+    constructor(string _name, address _owner) public {
+        name = _name;
+        owner = _owner;
+        level = 0;
+        playerDeletedFlag = false;
+    }
+    
+    modifier playerExist(){
+        require(playerDeletedFlag == false, "player already deleted");
+        _;
+    }
+
+    modifier onlyOwner(){
+        require(owner == msg.sender,"only owner can perform this action");
+        _;
+    }
+
+    
+    function deletePlayer() external onlyOwner{
+        require(playerDeletedFlag == false, "player already deleted");
+        playerDeletedFlag = true;
+        emit PlayerDeleted();
+    }
+}
