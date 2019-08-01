@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as ethers from 'ethers';
-import { ABI2, ABI } from './contractsAbi';
+import { ABI2, ABI, USER_ABI, USER_FACTORY_ABI } from './contractsAbi';
+import { User } from '../user/user.model';
 
 declare let require: any;
 const Web3 = require('web3');
@@ -28,9 +29,29 @@ const myContract = new web3.eth.Contract(ABI2, CONTRACT_ADDRESS, {
   gas: 10000000,
 });
 
+const USER_FACTORY_CONTRACT_ADDRESS =
+  '0xc6022ff51898b4c0011c219e92603035f8d9797e';
+const USER_CONTRACT_ADDRESS = '0x1D308c58e0F0F2224Bb0A1B6C375408871e9F0E0';
+const userContract = new web3.eth.Contract(USER_ABI, USER_CONTRACT_ADDRESS, {
+  from: '0x33CCa1a3068c90b6D222BD7a2B58FC41356945e5',
+  gasPrice: '60000000000',
+  gas: 10000000,
+});
+
+const userFactoryContract = new web3.eth.Contract(
+  USER_FACTORY_ABI,
+  USER_FACTORY_CONTRACT_ADDRESS,
+  {
+    from: '0x33CCa1a3068c90b6D222BD7a2B58FC41356945e5',
+    gasPrice: '60000000000',
+    gas: 10000000,
+  },
+);
+
 @Injectable()
 export class ExpressService {
   private express: any;
+  private users: User[] = [];
   constructor() {}
 
   public async getRequest() {
@@ -48,6 +69,33 @@ export class ExpressService {
       console.log(e);
       return e;
     }
+  }
+
+  public async getAllUsers() {
+    this.users = [];
+    await userFactoryContract
+      .getPastEvents('UserCreated', {
+        fromBlock: 0,
+        toBlock: 'latest',
+      })
+      .then(events => {
+        events.forEach(event => {
+          const result = event.returnValues;
+          console.log(result);
+          let user = new User();
+          user.address = result.user;
+          user.name = result.userName;
+          user.experience = 0;
+          this.users.push(user);
+        });
+      });
+
+    return this.users;
+  }
+
+  public async getUser(address: string) {
+    await this.getAllUsers();
+    return this.users.find((user: User) => user.address === address);
   }
 
   public async getAllRequests() {
@@ -68,6 +116,23 @@ export class ExpressService {
     const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
     try {
       await console.log(contract.setValue(value));
+      return 'OK';
+    } catch (e) {
+      return e;
+    }
+  }
+
+  public async createUser(name: string) {
+    const provider = new ethers.providers.EtherscanProvider('kovan');
+
+    const wallet = ethers.Wallet.fromMnemonic(MNEMONIC).connect(provider);
+    const contract = new ethers.Contract(
+      USER_FACTORY_CONTRACT_ADDRESS,
+      USER_FACTORY_ABI,
+      wallet,
+    );
+    try {
+      await console.log(contract.createUser(name));
       return 'OK';
     } catch (e) {
       return e;
