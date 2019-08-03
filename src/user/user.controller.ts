@@ -8,7 +8,6 @@ import {
   Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { MarketService } from 'src/markets/market.service';
 
 @Controller('users')
 export class UserController {

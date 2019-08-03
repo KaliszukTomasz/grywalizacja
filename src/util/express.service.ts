@@ -55,23 +55,6 @@ export class ExpressService {
   private users: User[] = [];
   constructor() {}
 
-  public async getRequest() {
-    try {
-      return await myContract.methods
-        .value()
-        .call()
-        .then(function(result) {
-          // this.value = result;
-          console.log(result);
-          return result;
-        });
-    } catch (e) {
-      console.log('ERROR!');
-      console.log(e);
-      return e;
-    }
-  }
-
   public async getAllUsers(): Promise<User[]> {
     this.users = [];
     return this.updateAllUsers().then(async result => {
@@ -157,29 +140,5 @@ export class ExpressService {
         }
         return total;
       });
-  }
-
-  public async getAllRequests() {
-    return await myContract
-      .getPastEvents('ValueChanged', { fromBlock: 0, toBlock: 'latest' })
-      .then(events => {
-        events.forEach(element => {
-          console.log(element.returnValues.newValue);
-        });
-        return events;
-      });
-  }
-
-  public async makeRequestSet(value: string) {
-    const provider = new ethers.providers.EtherscanProvider('kovan');
-
-    const wallet = ethers.Wallet.fromMnemonic(MNEMONIC).connect(provider);
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, wallet);
-    try {
-      await contract.setValue(value);
-      return 'OK';
-    } catch (e) {
-      return e;
-    }
   }
 }
