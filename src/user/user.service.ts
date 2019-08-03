@@ -9,7 +9,7 @@ export class UserService {
 
   constructor(private expressService: ExpressService) {}
 
-  getAllUsers() {
+  getAllUsers(): Promise<User[]> {
     return this.expressService.getAllUsers();
   }
 
@@ -19,5 +19,9 @@ export class UserService {
 
   createUser(userName: string) {
     return this.expressService.createUser(userName);
+  }
+
+  addExperience(exp: number, userAddress: string) {
+    return this.expressService.addExperience(exp, userAddress);
   }
 }

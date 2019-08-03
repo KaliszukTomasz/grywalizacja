@@ -29,9 +29,11 @@ export class UserController {
     return this.userService.createUser(userName);
   }
 
-  //   @Post()
-  //   setExperience(
-  //     @Body('exp') exp: number,
-  //     @Body('address') userAddress: string,
-  //   ) {}
+  @Post(':address')
+  addExperience(
+    @Param('address') userAddress: string,
+    @Body('exp') exp: number,
+  ) {
+    return this.userService.addExperience(exp, userAddress);
+  }
 }
